@@ -8,6 +8,8 @@ import de.robv.android.xposed.XC_MethodReplacement;
 import de.robv.android.xposed.callbacks.XC_LoadPackage.LoadPackageParam;
 
 import android.view.MotionEvent;
+import java.lang.reflect.Method;
+import java.lang.Class;
 
 
 public class FixOmate implements IXposedHookLoadPackage {
@@ -45,16 +47,31 @@ public class FixOmate implements IXposedHookLoadPackage {
        final XC_MethodHook checkSource = new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                    final MotionEvent event = (MotionEvent)param.args[0];
+                    MotionEvent event = (MotionEvent)param.args[0];
 
 		XposedBridge.log("PAU: " + event.toString() + " getAction=" + event.getAction());
 
-                    if(event.getDevice().getName().equals("mtk-tpd")) {
+                    if(event.getDevice().getName().equals("mtk-tpd")) { 
+
+
+
+
+
 			//printSamples(event);
 			//XposedBridge.log("PAU: " + event.toString());
 			if(event.getPointerCount()>1) {
-				XposedBridge.log("PAU: blocked event ^^^^^^^^");
-                        	param.setResult(false);
+				XposedBridge.log("PAU: borked event ^^^^^^^^");
+
+                        	Class < ? >myclass = Class.forName("android.view.MotionEvent");
+                        	Object[] params = new Object[] { new Integer (1) };
+				Class[] cArg = new Class[1];
+				cArg[0] = int.class;
+				Method split = myclass.getMethod("split", cArg);
+				event = (MotionEvent) (split.invoke (myclass.newInstance(),params));
+
+				XposedBridge.log("PAU: fixed event vvvvvvvv");
+				XposedBridge.log("PAU: " + event.toString() + " getAction=" + event.getAction());
+
 			} 
 /*
 			if (event.getAction()==MotionEvent.ACTION_CANCEL && event.getPointerCount()==1) {
