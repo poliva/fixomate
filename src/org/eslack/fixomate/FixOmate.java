@@ -9,13 +9,10 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage.LoadPackageParam;
 
 public class FixOmate implements IXposedHookLoadPackage {
     public void handleLoadPackage(final LoadPackageParam lpparam) throws Throwable {
-        if (!lpparam.packageName.equals("android.view.MotionEvent"))
-            return;
-
         findAndHookMethod("android.view.MotionEvent", lpparam.classLoader, "getPointerCount", new XC_MethodReplacement() {
             @Override
 		protected Object replaceHookedMethod(MethodHookParam param) throws Throwable {
-			//XposedBridge.log("PAU: Hook in place");
+			//XposedBridge.log("PAU: getPointerCount() Hook in place");
 			return 1;
 		}
         });
