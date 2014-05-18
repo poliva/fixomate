@@ -29,10 +29,8 @@ public class FixOmate implements IXposedHookLoadPackage {
      }
  }
 
-
     public void handleLoadPackage(final LoadPackageParam lpparam) throws Throwable {
 
-/*
         findAndHookMethod("android.view.MotionEvent", lpparam.classLoader, "getPointerCount", new XC_MethodReplacement() {
             @Override
 		protected Object replaceHookedMethod(MethodHookParam param) throws Throwable {
@@ -41,7 +39,16 @@ public class FixOmate implements IXposedHookLoadPackage {
 		}
         });
 
+/*
+        findAndHookMethod("android.view.ViewGroup", lpparam.classLoader, "cancelAndClearTouchTargets", new XC_MethodReplacement() {
+            @Override
+		protected Object replaceHookedMethod(MethodHookParam param) throws Throwable {
+			XposedBridge.log("PAU: cancelAndClearTouchTargets called!");
+			return false;
+		}
+        });
 */
+
 
 
        final XC_MethodHook checkSource = new XC_MethodHook() {
@@ -59,18 +66,15 @@ public class FixOmate implements IXposedHookLoadPackage {
 
 			//printSamples(event);
 			//XposedBridge.log("PAU: " + event.toString());
-			if(event.getPointerCount()>1) {
+			//if(event.getPointerCount()>1) {
+			if (event.getAction() == 261 || event.getAction() == 262 || event.getAction() == 517 || event.getAction() == MotionEvent.ACTION_POINTER_UP) {
 				XposedBridge.log("PAU: borked event ^^^^^^^^");
+                        	param.setResult(false);
 
-                        	Class < ? >myclass = Class.forName("android.view.MotionEvent");
-                        	Object[] params = new Object[] { new Integer (1) };
-				Class[] cArg = new Class[1];
-				cArg[0] = int.class;
-				Method split = myclass.getMethod("split", cArg);
-				event = (MotionEvent) (split.invoke (myclass.newInstance(),params));
-
-				XposedBridge.log("PAU: fixed event vvvvvvvv");
-				XposedBridge.log("PAU: " + event.toString() + " getAction=" + event.getAction());
+				//event.setAction(MotionEvent.ACTION_MOVE);
+                        	//param.setResult(true);
+				//XposedBridge.log("PAU: fixed event vvvvvvvv");
+				//XposedBridge.log("PAU: " + event.toString() + " getAction=" + event.getAction());
 
 			} 
 /*
